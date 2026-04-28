@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OVFiller - Panel de Control</title>
+  <style>
+    :root {
+      --bg-primary: #121212;
+      --bg-secondary: #1e1e1e;
+      --border-ui: #333333;
+      --accent: #00e5ff;
+      --error: #d50000;
+      --success: #00c853;
+      --warning: #ffd600;
+      --text-primary: #e0e0e0;
+      --text-secondary: #9e9e9e;
+      --font-ui: 'Inter', 'Roboto', sans-serif;
+      --font-data: 'JetBrains Mono', 'Roboto Mono', monospace;
+      --radius-card: 8px;
+      --radius-btn: 4px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-ui);
+      border-radius: var(--radius-card);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .system-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 200, 83, 0.35);
+      background: rgba(0, 200, 83, 0.08);
+      color: var(--success);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 20px;
+    }
+
+    .column {
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-ui);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-ui);
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      margin: 6px 0 0;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-body {
+      padding: 18px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--border-ui);
+      border-radius: 8px;
+      background: rgba(255,255,255,.015);
+      padding: 16px;
+    }
+
+    .metric-label {
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-family: var(--font-data);
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .metric-value.small {
+      font-size: 1.35rem;
+    }
+
+    .metric-status {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .status-tile {
+      border: 1px solid var(--border-ui);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,.015);
+    }
+
+    .status-tile.success { border-left-color: var(--success); }
+    .status-tile.warning { border-left-color: var(--warning); }
+    .status-tile.critical { border-left-color: var(--error); }
+
+    .status-name {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .status-value {
+      font-family: var(--font-data);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .input,.select {
+      width: 100%;
+      height: 46px;
+      border-radius: 6px;
+      border: 1px solid var(--border-ui);
+      background: #151515;
+      color: var(--text-primary);
+      font-family: var(--font-data);
+      font-size: 1rem;
+      padding: 0 14px;
+      outline: none;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-primary { background: var(--accent); color: #121212; }
+    .btn-success { background: var(--success); color: #121212; }
+    .btn-warning { background: var(--warning); color: #121212; }
+    .btn-danger { background: var(--error); color: #fff; }
+    .btn-secondary { background: transparent; color: var(--text-primary); border: 1px solid var(--border-ui); }
+
+    .nav-link {
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+    }
+
+    @media (max-width:1050px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width:640px) {
+      .metrics-grid,.status-grid,.field-row { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .button-row { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <h1>OVFILLER / INDUSTRIAL CONTROL PANEL</h1>
+        <p>Dosificación automática por líquido calibrado</p>
+      </div>
+      <div class="system-pill">Sistema listo</div>
+    </header>
+
+    <main class="layout">
+      <section class="column">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Métricas de operación</h2>
+              <p class="card-subtitle">Lecturas principales del sistema</p>
+            </div>
+            <a class="nav-link" href="/cal">Ir a calibración</a>
+          </div>
+          <div class="card-body">
+            <div class="metrics-grid">
+              <div class="metric">
+                <div class="metric-label">Líquido seleccionado</div>
+                <div class="metric-value small">VAINILLA</div>
+                <div class="metric-status">Perfil activo en memoria</div>
+              </div>
+
+              <div class="metric">
+                <div class="metric-label">Tiempo calculado</div>
+                <div class="metric-value">10.86 s</div>
+                <div class="metric-status">Derivado del perfil calibrado</div>
+              </div>
+
+              <div class="metric">
+                <div class="metric-label">Cantidad solicitada</div>
+                <div class="metric-value">200.00 mL</div>
+                <div class="metric-status">Objetivo del ciclo actual</div>
+              </div>
+
+              <div class="metric">
+                <div class="metric-label">Último ciclo</div>
+                <div class="metric-value">11.02 s</div>
+                <div class="metric-status">Desde inicio hasta fin del ciclo</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Estado del sistema</h2>
+              <p class="card-subtitle">Monitoreo en tiempo real</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="status-grid">
+              <div class="status-tile success">
+                <div class="status-name">Sensor botella</div>
+                <div class="status-value">Detectada</div>
+              </div>
+
+              <div class="status-tile success">
+                <div class="status-name">Bomba</div>
+                <div class="status-value">Apagada</div>
+              </div>
+
+              <div class="status-tile warning">
+                <div class="status-name">Ciclo</div>
+                <div class="status-value">En espera</div>
+              </div>
+
+              <div class="status-tile success">
+                <div class="status-name">Motor paso a paso</div>
+                <div class="status-value">Quieto</div>
+              </div>
+
+              <div class="status-tile success">
+                <div class="status-name">Líquido</div>
+                <div class="status-value">VAINILLA</div>
+              </div>
+
+              <div class="status-tile critical">
+                <div class="status-name">Paro / Falla</div>
+                <div class="status-value">Sin alarmas</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="column">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Control de producción</h2>
+              <p class="card-subtitle">Parámetros del ciclo</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="field-row">
+              <div class="field">
+                <label>Líquido</label>
+                <select class="select">
+                  <option selected>Vainilla</option>
+                  <option>Jarabe</option>
+                  <option>Jugo</option>
+                  <option>Extracto</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Cantidad solicitada (mL)</label>
+                <input class="input" type="number" min="1" step="0.1" value="200">
+              </div>
+            </div>
+
+            <div class="field-row" style="margin-top:14px">
+              <div class="field">
+                <label>Tiempo calculado (s)</label>
+                <input class="input" type="text" value="10.86" readonly>
+              </div>
+
+              <div class="field">
+                <label>Estado actual</label>
+                <input class="input" type="text" value="LISTO" readonly>
+              </div>
+            </div>
+
+            <div class="button-row" style="margin-top:16px">
+              <button class="btn btn-warning">Aplicar</button>
+              <button class="btn btn-primary">Iniciar ciclo</button>
+              <button class="btn btn-danger">Parar ciclo</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Resumen de ciclos</h2>
+              <p class="card-subtitle">Acumulados de producción</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="metrics-grid">
+              <div class="metric">
+                <div class="metric-label">Ciclos realizados</div>
+                <div class="metric-value">18</div>
+                <div class="metric-status">Total desde último reset</div>
+              </div>
+
+              <div class="metric">
+                <div class="metric-label">Último tiempo de ciclo</div>
+                <div class="metric-value">11.02 s</div>
+                <div class="metric-status">Desde inicio hasta final</div>
+              </div>
+
+              <div class="metric">
+                <div class="metric-label">Último llenado</div>
+                <div class="metric-value">200.00 mL</div>
+                <div class="metric-status">Cantidad dosificada</div>
+              </div>
+
+              <div class="metric">
+                <div class="metric-label">Estado del contador</div>
+                <div class="metric-value small">ACTIVO</div>
+                <div class="metric-status">Acumulación habilitada</div>
+              </div>
+            </div>
+
+            <div class="button-row" style="margin-top:16px">
+              <button class="btn btn-warning">Resetear datos</button>
+            </div>
+          </div>
+        </article>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>
